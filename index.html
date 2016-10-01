@@ -1,8 +1,184 @@
+<!DOCTYPE html>
 <html>
     <head>
-        
+        <meta charset="utf-8">
+        <link href="dist/img/icono.ico" rel="shortcut icon"  type="image/ico">
+        <link href="dist/img/icono.png" rel="shortcut icon"  type="image/png">
+        <title>E-Computer</title>
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <script src="dist/jquery/jquery.min.js"></script>
+        <link href="dist/jquerymobile/jquery.mobile-1.4.5.min.css" rel="stylesheet">
+        <link href="dist/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+        <link href="dist/toast/toastr.min.css" rel="stylesheet">
+        <script src="dist/jquerymobile/jquery.mobile-1.4.5.min.js"></script>        
+        <script src="dist/jquery/jquery.UI.js"></script>
+        <script src="dist/toast/toastr.min.js"></script>
     </head>
     <body>
-        
+        <!-- INDEX PAGE APP -->
+        <div data-role="page" id="index" data-theme="b">
+            <div data-role="header">
+                <h1>E-Computer</h1>
+                <a href="#carrito" onClick="ver_carrito();" class="ui-btn-right ui-btn" data-role="button" role="button"><span class="fa fa-shopping-cart"></span> <span id="contadorproductos">0</span></a>
+                <a href="#categorias" class="ui-btn-left ui-btn" data-role="button" role="button"><span class="fa fa-list-ul"></span></a>
+            </div>
+            <!-- VISTA DE PRODUCTOS DINAMICO -->
+            <div role="main" class="ui-content" >
+                <div id="areaproductos">
+                    
+                </div>                
+            </div>
+            <div data-role="footer">
+                <h4>Tienda Online</h4>
+            </div>
+        </div>
+        <!-- CARRITO PAGE APP -->
+        <div data-role="page" id="carrito" data-theme="b">
+            <div data-role="header">
+                <h1>CARRITO</h1>
+                <a href="#index" class="ui-btn-left ui-btn" data-role="button" role="button"><span class="fa fa-chevron-left"></span></a>
+            </div>
+            <!-- VISTA PRODUCTOS CARRITO PARCIAL -->
+            <div role="main" class="ui-content">
+                <div id="cargaproductosparcial">
+                </div>            
+            </div>
+            <div data-role="footer">
+                <h4>Tienda Online</h4>
+            </div>
+        </div>
+        <!-- CATEGORIAS PAGE APP -->
+        <div data-role="page" id="categorias" data-theme="b">
+            <div data-role="header">
+                <h1>CATEGORIAS</h1>
+                <a href="#index" id="cerrarcat" class="ui-btn-left ui-btn" data-role="button" role="button"><span class="fa fa-chevron-left"></span></a>
+            </div>
+            <div role="main" class="ui-content">
+                <div class="ui-controlgroup-controls ">
+                    <div class="ui-radio" >
+                        <label for="cat1" class="ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-right ui-first-child ui-radio-on">Computadoras</label>
+                        <input type="radio" id="cat1" name="cate" checked onClick="obtener_productos('2');">
+                    </div>
+                     <div class="ui-radio">
+                        <label for="cat2" class="ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-right ui-first-child ui-radio-on">Accesorios</label>
+                        <input type="radio" id="cat2" name="cate"  onClick="obtener_productos('1');">
+                    </div>
+                    <div class="ui-radio">
+                        <label for="cat3" class="ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-right ui-first-child ui-radio-on">Memorias</label>
+                        <input type="radio" id="cat3" name="cate" onClick="obtener_productos('3');">
+                    </div>
+                    <div class="ui-radio">
+                        <label for="cat4" class="ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-right ui-first-child ui-radio-on">Programas</label>
+                        <input type="radio" id="cat4" name="cate" onClick="obtener_productos('4');">
+                    </div>
+                </div>                
+            </div>
+            <div data-role="footer">
+                <h4>Tienda Online</h4>
+            </div>
+        </div>   
     </body>
 </html>
+<!-- APP FUNCTION JS -->
+<script>
+    var idcliente=0;
+    var carrito=[];
+	var cantidad;
+    //CARGAR AL INICIAR APLICACION
+    $(document).ready(function(){
+        obtener_productos('2');
+    });
+    //AGREGAR PARCIALMENTE AL CARRITO
+    function agregar_carrito(cliente,idproducto,nombre,precio,imagen)
+    {				
+        var nuevo;
+        nuevo={"idcliente":cliente,"idproductos":idproducto,"nombre":nombre,"precio":precio,"url":imagen};
+        carrito.push(nuevo);
+        cantidad=carrito.length;
+        $("#contadorproductos").html(cantidad).fadeIn();        
+        toastr.options = {
+            "positionClass": "toast-bottom-center"
+        }
+        toastr.success("<h5>Agregado al carrito: $"+precio+"</h5>");
+    }
+    //ELIMINAR PRODUCTO DE CARRITO
+    function eliminar_carrito()
+    {
+        cantidad=carrito.length;
+        $("#contadorproductos").html(cantidad).fadeIn();       
+    }
+    //VER PRODUCTOS ALMACENADOS EN CARRITO
+    function ver_carrito()
+    {
+        if(carrito.length == 0)
+        {
+            $("#cargaproductosparcial").html("");            
+            $("#cargaproductosparcial").append("<center><img src='dist/img/carrito.png' width='40px'  height='40px'><p>No hay productos en el carrito. . .</p></center>");
+        }
+        else{
+            var subtotal=0;
+            $("#cargaproductosparcial").html("");            
+            var html="<ul  data-role='listview' data-split-icon='gear' data-split-theme='b' data-inset='true' class='ui-listview ui-listview-inset ui-corner-all ui-shadow'>";
+            $.each(carrito ,function(indice,valor){
+                subtotal=subtotal+parseFloat(valor.precio);
+                html=html+"<li class='ui-li-has-alt ui-li-has-thumb'><a class='ui-btn' href='#'><img src='"+valor.url+"' width='80' height='80'><p>"+valor.nombre+"</p><p>$"+valor.precio+"</p></a><a id='"+indice+"' class='ui-btn ui-btn-icon-notext ui-icon-delete'></a></li><script>$('#"+indice+"').click(function(){ carrito.splice("+indice+",1); eliminar_carrito(); ver_carrito();});\<\/\script\>";					
+            });
+            html=html+"</ul><center><p>Subtotal: $"+subtotal+"</p></center>";
+            $("#cargaproductosparcial").html(html);           
+        }
+    }
+    //OBTENER PRODUCTOS POR WS
+    function obtener_productos(categ)
+    {
+        $("#cerrarcat").trigger("click");
+        $("#areaproductos").html('<br><br><center><img src="dist/img/loading.GIF" width="50px"  height="50px"></center>');      
+        //OBTENIENDO INFORMACION DE WS
+        $.get("http://pymesv.com/cliente02w/API/categorias/", { categoria: categ})
+        .done(function(jsonws){
+            switch(categ)
+            {
+                case "1":
+                    $("#areaproductos").html("<center><p>Actual: Categor&iacute;a Accesorios</p></center>");	
+                break;
+                case "2":
+                    $("#areaproductos").html("<center><p>Actual: Categor&iacute;a Computadoras</p></center>");	
+                break;
+                case "3":
+                    $("#areaproductos").html("<center><p>Actual: Categor&iacute;a Memorias</p></center>");	
+                break;
+                case "4":
+                    $("#areaproductos").html("<center><p>Actual: Categor&iacute;a Programas</p></center>");	
+                break;
+                default:
+                    $("#areaproductos").html("");	
+                break;
+            }            									
+            $.each(jsonws ,function(indice,valor){
+                if(indice=="error" && valor=="0")
+                {                   
+                    toastr.options = {
+                        "positionClass": "toast-bottom-center"
+                    }
+                    toastr.error("<h5>:( Error desconocido. . .</h5>");
+                }
+                else if(indice=="error" && valor=="1")
+                {                    
+                    toastr.options = {
+                        "positionClass": "toast-bottom-center"
+                    }
+                    toastr.error("<h5>:( No existen productos. . .</h5>");
+                    var html="<br><br><br><center><img src='dist/img/notfound.png' width='60' height='60'><p>No existen productos registrados. . .</p></center>";
+                    $("#areaproductos").append(html);
+                }
+                else
+                {                	
+                var html ="<div class='ui-body ui-body-b ui-corner-all'><center><img src='"+valor.url+"' width='100px' height='100px'></center><h5 class='perform-text-margin'>"+valor.nombre+"</h5><p>Precio: $"+valor.precio+"</p><center><div class='ui-btn ui-input-btn ui-corner-all ui-shadow' id='"+valor.idproductos+"'><a><span class='fa fa-shopping-cart'></span> Agregar al carrito</a></div></center></div><br>";
+                    html=html+"<script>$('#"+valor.idproductos+"').click(function(){ agregar_carrito(idcliente,'"+valor.idproductos+"','"+valor.nombre+"','"+valor.precio+"','"+valor.url+"');});\<\/\script\>";
+                    $("#areaproductos").append(html);                    
+                }
+            })
+        });
+    }
+</script>
